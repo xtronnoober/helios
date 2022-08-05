@@ -31,14 +31,13 @@ class MirrorStatus:
     STATUS_EXTRACTING = "Extracting...📂"
     STATUS_SPLITTING = "Splitting...✂️"
     STATUS_CHECKING = "CheckingUp...📝"
-    STATUS_SEEDING = "Seeding...🌧"
 
 class EngineStatus:
     STATUS_ARIA = "Aria2c"
     STATUS_GDRIVE = "Google API"
     STATUS_MEGA = "Mega API"
     STATUS_QB = "qBittorrent"
-    STATUS_TG = "Pyrogram - Uploading on TG"
+    STATUS_TG = "Pyrogram"
     STATUS_YT = "Yt-dlp"
     STATUS_EXT = "extract | pextract"
     STATUS_SPLIT = "FFmpeg"
@@ -97,15 +96,12 @@ def getAllDownload(req_status: str):
         for dl in list(download_dict.values()):
             status = dl.status()
             if status not in [MirrorStatus.STATUS_ARCHIVING, MirrorStatus.STATUS_EXTRACTING, MirrorStatus.STATUS_SPLITTING] and dl:
-                if req_status == 'down' and (status not in [MirrorStatus.STATUS_SEEDING,
-                                                            MirrorStatus.STATUS_UPLOADING,
+                if req_status == 'down' and (status not in [MirrorStatus.STATUS_UPLOADING,
                                                             MirrorStatus.STATUS_CLONING]):
                     return dl
                 elif req_status == 'up' and status == MirrorStatus.STATUS_UPLOADING:
                     return dl
                 elif req_status == 'clone' and status == MirrorStatus.STATUS_CLONING:
-                    return dl
-                elif req_status == 'seed' and status == MirrorStatus.STATUS_SEEDING:
                     return dl
                 elif req_status == 'all':
                     return dl
@@ -139,7 +135,6 @@ def get_readable_message():
                 MirrorStatus.STATUS_ARCHIVING,
                 MirrorStatus.STATUS_EXTRACTING,
                 MirrorStatus.STATUS_SPLITTING,
-                MirrorStatus.STATUS_SEEDING,
             ]:
                 msg += f"\n{get_progress_bar_string(download)} {download.progress()}"
                 if download.status() == MirrorStatus.STATUS_CLONING:
@@ -150,7 +145,6 @@ def get_readable_message():
                     msg += f"\n<b>Downloaded:</b> {get_readable_file_size(download.processed_bytes())} of {download.size()}"
                 msg += f"\n<b>Speed:</b> {download.speed()} | <b>ETA:</b> {download.eta()}"
                 msg += f"\n<b>Time Elapsed: </b>{get_readable_time(time() - download.message.date.timestamp())}"
-                msg += f"\n<b>Engine:</b> {download.eng()}"
                 try:
                     msg += f"\n<b>Seeders:</b> {download.aria_download().num_seeders}" \
                            f" | <b>Peers:</b> {download.aria_download().connections}"
@@ -170,15 +164,6 @@ def get_readable_message():
                 else:
                     msg += f'\n<b>User:</b> ️<code>{download.message.from_user.first_name}</code> | <b>Id:</b> <code>{download.message.from_user.id}</code>'
                 msg += f"\n<b>To Stop: </b><code>/{BotCommands.CancelMirror} {download.gid()}</code>"
-            elif download.status() == MirrorStatus.STATUS_SEEDING:
-                msg += f"\n<b>Size: </b>{download.size()}"
-                msg += f"\n<b>Speed: </b>{get_readable_file_size(download.torrent_info().upspeed)}/s"
-                msg += f"\n<b>Engine: </b> {download.eng()}"
-                msg += f" | <b>Uploaded: </b>{get_readable_file_size(download.torrent_info().uploaded)}"
-                msg += f"\n<b>Ratio: </b>{round(download.torrent_info().ratio, 3)}"
-                msg += f" | <b>Time: </b>{get_readable_time(download.torrent_info().seeding_time)}"
-                msg += f"\n<code>/{BotCommands.CancelMirror} {download.gid()}</code>"
-            else:
                 msg += f"\n<b>Size: </b>{download.size()}"
             msg += "\n\n"
             if STATUS_LIMIT is not None and index == STATUS_LIMIT:

@@ -17,6 +17,7 @@ This is a Telegram Bot written in Python for mirroring files on the Internet to 
 - Engine stats in status
 - Statistics button in status
 - Heroku Dyno info in stats
+- 4 GB upload for Premium users
 - And many more little changes can't remember
 
 ## From Other Repositories
@@ -42,7 +43,6 @@ This is a Telegram Bot written in Python for mirroring files on the Internet to 
 - Search on torrents with Torrent Search API or with variable plugins using qBittorrent search engine
 - Docker image support for linux `amd64, arm64, arm/v7, arm/v6, s390x, arm64/v8` (**Note**: Use `arshsisodiya/helioskirepo:arm64` for `arm64/v8` or oracle)
 - Update bot at startup and with restart command using `UPSTREAM_REPO`
-- Qbittorrent seed until reaching specific ratio or time
 - Rss feed and filter. Based on this repository [rss-chan](https://github.com/hyPnOtICDo0g/rss-chan)
 - Save leech settings including thumbnails in database
 - Mirror/Leech/Clone multi links/files with one command
@@ -59,7 +59,6 @@ This is a Telegram Bot written in Python for mirroring files on the Internet to 
 - Index Link support
 - Service Account support
 - Delete files from Drive
-- Shortener support
 - Multiple Trackers support
 - Shell and Executor
 - Add sudo users
@@ -152,11 +151,10 @@ Fill up rest of the fields. Meaning of each field is discussed below:
 
 ### Leech
 - `LEECH_LOG`: - Chat id of channel/group where leeched files will be uploaded, **NOTE:** only put 1 channel/group id starts with -100xxxxxxxxx, ***NOTE*** add bot in that channel/group as Admin, if you leave this empty bot will sent leech files in current chat.
-- `TG_SPLIT_SIZE`: Size of split in bytes. Default is `2GB`.
 - `AS_DOCUMENT`: Default type of Telegram file upload. Default is `False` mean as media. `Bool`
-- `EQUAL_SPLITS`: Split files larger than **TG_SPLIT_SIZE** into equal parts size (Not working with zip cmd). Default is `False`. `Bool`
+- `EQUAL_SPLITS`: Split files larger than **MAX_LEECH_SIZE** into equal parts size (Not working with zip cmd). Default is `False`. `Bool`
 - `CUSTOM_FILENAME`: Add custom word to leeched file name.
-
+- `USER_SESSION_STRING`: For TG premium users to Upload More than 2 GB files on Telegram.
 ### Telegraph ui
 - `TITLE_NAME`: Title name for Telegraph pages (while using /list command)
 - `AUTHOR_NAME`: = Author name for Telegraph pages
@@ -167,14 +165,13 @@ Fill up rest of the fields. Meaning of each field is discussed below:
 - `BASE_URL_OF_BOT`: Valid BASE URL where the bot is deployed to use qbittorrent web selection. Format of URL should be `http://myip`, where `myip` is the IP/Domain(public) of your bot or if you have chosen port other than `80` so write it in this format `http://myip:port` (`http` and not `https`). This Var is optional on VPS and required for Heroku specially to avoid app sleeping/idling. For Heroku fill `https://yourappname.herokuapp.com`. Still got idling? You can use http://cron-job.org to ping your Heroku app.
 - `SERVER_PORT`: Only For VPS even if `IS_VPS` is `False`, which is the **BASE_URL_OF_BOT** Port.
 - `WEB_PINCODE`: If empty or `False` means no more pincode required while qbit web selection. `Bool`
-- `QB_SEED`: QB torrent will be seeded after and while uploading until reaching specific ratio or time, edit `MaxRatio` or `GlobalMaxSeedingMinutes` or both from qbittorrent.conf (`-1` means no limit, but u can cancel manually by gid). **NOTE**: 1. Don't change `MaxRatioAction`, 2. Only works with `/qbmirror` and `/qbzipmirror`. Default is `False`. `Bool`
   - **Qbittorrent NOTE**: If your facing ram exceeded issue then set limit for `MaxConnecs`, decrease `AsyncIOThreadsCount` in qbittorrent config and set limit of `DiskWriteCacheSize` to `32`.
 
 ### RSS
 - `RSS_DELAY`: Time in seconds for rss refresh interval. Recommended `900` second at least. Default is `900` in sec.
 - `RSS_COMMAND`: Choose command for the desired action.
 - `RSS_CHAT_ID`: Chat ID where rss links will be sent. If using channel then add channel id.
-- `USER_SESSION_STRING`: To send rss links from your telegram account instead of adding bot to channel then linking the channel to group to get rss link since bot will not read command from itself or other bot. To generate session string use this command `python3 generate_string_session.py` after mounting repo folder for sure.
+- `RSS_USER_SESSION_STRING`: To send rss links from your telegram account instead of adding bot to channel then linking the channel to group to get rss link since bot will not read command from itself or other bot. To generate session string use this command `python3 generate_string_session.py` after mounting repo folder for sure.
   - **RSS NOTE**: `DATABASE_URL` and `RSS_CHAT_ID` is required, otherwise all rss commands will not work. You must use bot in group. You can add the bot to a channel and add link this channel to group so messages sent by bot to channel will be forwarded to group without using `USER_STRING_SESSION`.
 
 ### Private Files
@@ -193,13 +190,6 @@ Fill up rest of the fields. Meaning of each field is discussed below:
 - `MEGA_API_KEY`: Mega.nz API key to mirror mega.nz links. Get it from [Mega SDK Page](https://mega.nz/sdk)
 - `MEGA_EMAIL_ID`: E-Mail ID used to sign up on mega.nz for using premium account.
 - `MEGA_PASSWORD`: Password for mega.nz account.
-- `MEGAREST`: - set it `True` if you want to use Megasdkrest, Default is `False`.
-
-### Shortener
-- `SHORTENER_API`: Fill your Shortener API key.
-- `SHORTENER`: Shortener URL.
-  - Supported URL Shorteners:
-  >exe.io, gplinks.in, shrinkme.io, urlshortx.com, shortzon.com, bit.ly, shorte.st, linkvertise.com , ouo.io, adfoc.us, cutt.ly
 
 ### GDTOT
 - `CRYPT`: Cookie for gdtot google drive link generator. Follow these [steps](https://github.com/arshsisodiya/helios-mirror/tree/master#gdtot-cookies).
