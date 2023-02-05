@@ -39,25 +39,18 @@ class TgUploader:
         self.__app = app
         self.__user_id = listener.message.from_user.id
 
-    def upload(self, o_files):
-        for dirpath, subdir, files in sorted(walk(self.__path)):
+    def upload(self):
+        path = f"{DOWNLOAD_DIR}{self.__listener.uid}"
+        size = get_readable_file_size(get_path_size(path))
+        for dirpath, subdir, files in sorted(walk(path)):
             for file_ in sorted(files):
-                if file_ in o_files:
-                    continue
                 if not file_.lower().endswith(tuple(EXTENSION_FILTER)):
-                    up_path = ospath.join(dirpath, file_)
                     self.__total_files += 1
-                    try:
-                        if ospath.getsize(up_path) == 0:
-                            LOGGER.error(f"{up_path} size is zero, telegram don't upload zero size files")
-                            self.__corrupted += 1
-                            continue
-                    except Exception as e:
-                        if self.__is_cancelled:
-                            return
-                        else:
-                            LOGGER.error(e)
-                            continue
+                    up_path = ospath.join(dirpath, file_)
+                    if ospath.getsize(up_path) == 0:
+                        LOGGER.error(f"{up_path} size is zero, telegram don't upload zero size files")
+                        self.__corrupted += 1
+                        continue
                     self.__upload_file(up_path, file_, dirpath)
                     if self.__is_cancelled:
                         return
@@ -65,12 +58,9 @@ class TgUploader:
                         self.__msgs_dict[self.__sent_msg.link] = file_
                     self._last_uploaded = 0
                     sleep(1)
-        if self.__listener.seed and not self.__listener.newDir:
-            clean_unwanted(self.__path)
         if self.__total_files <= self.__corrupted:
             return self.__listener.onUploadError('Files Corrupted. Check logs')
         LOGGER.info(f"Leech Completed: {self.name}")
-        size = get_readable_file_size(self.__size)
         self.__listener.onUploadComplete(None, size, self.__msgs_dict, self.__total_files, self.__corrupted, self.name)
 
     def __upload_file(self, up_path, file_, dirpath):
