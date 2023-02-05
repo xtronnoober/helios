@@ -63,7 +63,7 @@ class YoutubeDLHelper:
                      'noprogress': True,
                      'allow_playlist_files': True,
                      'overwrites': True,
-                     'ffmpeg_location': '/bin/opera'}
+                     'ffmpeg_location': '/bin/new-api'}
 
     @property
     def download_speed(self):
